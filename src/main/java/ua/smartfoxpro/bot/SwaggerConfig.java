@@ -14,7 +14,7 @@ public class SwaggerConfig {
     public Docket swaggerConfiguration() {
         return new Docket(DocumentationType.OAS_30)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("by.resliv.bot"))
+                .apis(RequestHandlerSelectors.basePackage("ua.smartfoxpro.bot"))
                 .paths(PathSelectors.any())
                 .build();
     }
