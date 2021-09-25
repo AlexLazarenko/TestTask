@@ -37,25 +37,28 @@ public class CityGameController {
         return new ResponseEntity<>(firstWord, HttpStatus.OK);
     }
 
-    @GetMapping("/next")
+@GetMapping("/next")
     public ResponseEntity<?> getNextWord(@RequestParam("word") String word) {
         ResponseEntity<?> responseEntity;
-        if (word != null && !word.isBlank()&&contentValidator.isStringMatches(word)&&!storage.findCity(word)) {
-            String lastSystemWord = storage.getLastSystemWord();
-            if (symbolValidator.validate(lastSystemWord,word)) {
-                storage.addUserAnswer(word);
-                String lastUserWordSymbol = word.substring(word.length() - 1);
-                Optional<String> nextWord = storage.getNextSystemWord(lastUserWordSymbol);
-                if (nextWord.isPresent()) {
-                    responseEntity = new ResponseEntity<>(nextWord, HttpStatus.OK);
-                    storage.addSystemAnswer(nextWord.get());
+        if (word != null && !word.isBlank() && contentValidator.isStringMatches(word)) {
+            if (!storage.findCity(word)) {
+                String lastSystemWord = storage.getLastSystemWord();
+                if (symbolValidator.validate(lastSystemWord, word)) {
+                    storage.addUserAnswer(word);
+                    String lastUserWordSymbol = word.substring(word.length() - 1);
+                    Optional<String> nextWord = storage.getNextSystemWord(lastUserWordSymbol);
+                    if (nextWord.isPresent()) {
+                        responseEntity = new ResponseEntity<>(nextWord, HttpStatus.OK);
+                        storage.addSystemAnswer(nextWord.get());
+                    } else {
+                        responseEntity = new ResponseEntity<>("You win!", HttpStatus.OK);
+                    }
                 } else {
-                    String message = "You win!";
-                    responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
+                    responseEntity = new ResponseEntity<>("City name must starts with " +
+                            lastSystemWord.substring(lastSystemWord.length() - 1), HttpStatus.NOT_ACCEPTABLE);
                 }
             } else {
-                responseEntity = new ResponseEntity<>("City name must starts with " +
-                        lastSystemWord.substring(lastSystemWord.length()-1), HttpStatus.NOT_ACCEPTABLE);
+                responseEntity = new ResponseEntity<>("This city is already been!Please insert another!", HttpStatus.NOT_ACCEPTABLE);
             }
         } else {
             responseEntity = new ResponseEntity<>("Please, insert a correct data!", HttpStatus.NOT_ACCEPTABLE);
